@@ -9,9 +9,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-public class MyDBHelper extends SQLiteOpenHelper {
+public class MyDbHelper extends SQLiteOpenHelper {
 
-    public MyDBHelper(Context context) {
+    public MyDbHelper(Context context) {
         super(context, Params.DB_NAME, null, Params.DB_VIRSION);
     }
 
@@ -19,9 +19,11 @@ public class MyDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String create = "CREATE TABLE " + Params.TABLE_NAME + "("
                 + Params.KEY_ID + " INTEGER PRIMARY KEY,"
-                + Params.KEY_NAME + " TEXT,"
-                + Params.KEY_PHONE_NO + " TEXT,"
-                + Params.KEY_IMAGE_URI + " TEXT"
+                + Params.KEY_TITLE + " TEXT,"
+                + Params.KEY_DESCRIPTION + " TEXT,"
+                + Params.KEY_DATE + " TEXT,"
+                + Params.KEY_TIME + " TEXT,"
+                + Params.KEY_PRIORITY + " TEXT"
                 + ")";
 
         Log.d("db---arghya", "query " + create);
@@ -33,32 +35,37 @@ public class MyDBHelper extends SQLiteOpenHelper {
         // Implement if needed
     }
 
-    public void addContact(ContactModel contactModel) {
+    public void addTask(TaskModel taskModel) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        values.put(Params.KEY_NAME, contactModel.getName());
-        values.put(Params.KEY_PHONE_NO, contactModel.getPhoneNo());
-        values.put(Params.KEY_IMAGE_URI, contactModel.getImageUri());
+        values.put(Params.KEY_TITLE, taskModel.getTitle());
+        values.put(Params.KEY_DESCRIPTION, taskModel.getDescription());
+        values.put(Params.KEY_DATE, taskModel.getDate_for_store());
+        values.put(Params.KEY_TIME, taskModel.getTime_for_store());
+        values.put(Params.KEY_PRIORITY, taskModel.getPriority());
 
         db.insert(Params.TABLE_NAME, null, values);
         Log.d("dbarghya", "db created");
         db.close();
     }
 
-    public ArrayList<ContactModel> fetchContact() {
-        ArrayList<ContactModel> contactList = new ArrayList<>();
+    public ArrayList<TaskModel> fetchContact() {
+        ArrayList<TaskModel> contactList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String select = "SELECT * FROM " + Params.TABLE_NAME;
         Cursor cursor = db.rawQuery(select, null);
         if (cursor.moveToFirst()) {
             do {
-                ContactModel contactModel = new ContactModel();
-                contactModel.setId(cursor.getInt(0));
-                contactModel.setName(cursor.getString(1));
-                contactModel.setPhoneNo(cursor.getString(2));
-                contactModel.setImageUri(cursor.getString(3));
-                contactList.add(contactModel);
+                TaskModel taskModel = new TaskModel();
+                taskModel.setId(cursor.getInt(0));
+                taskModel.setTitle(cursor.getString(1));
+                taskModel.setDescription(cursor.getString(2));
+                taskModel.setDate_for_store(cursor.getString(3));
+                taskModel.setTime_for_store(cursor.getString(4));
+                taskModel.setPriority(cursor.getString(5));
+
+                contactList.add(taskModel);
             } while (cursor.moveToNext());
         }
         cursor.close();

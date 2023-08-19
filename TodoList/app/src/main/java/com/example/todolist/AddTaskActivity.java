@@ -2,6 +2,7 @@ package com.example.todolist;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -12,6 +13,9 @@ import android.widget.TimePicker;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.todolist.database.MyDbHelper;
+import com.example.todolist.database.TaskModel;
 
 import java.util.Locale;
 
@@ -28,6 +32,8 @@ public class AddTaskActivity extends AppCompatActivity {
         CheckBox highPriority = findViewById(R.id.highPriority);
         EditText getTitle = findViewById(R.id.getTitle);
         EditText getDescription = findViewById(R.id.getDescription);
+
+
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,7 +53,38 @@ public class AddTaskActivity extends AppCompatActivity {
                 showTimePickerDialog();
             }
         });
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String title = getTitle.getText().toString();
+                String description = getDescription.getText().toString();
+                boolean isHighPriority = highPriority.isChecked();
+//                String priority ;
+//                if(isHighPriority==true){
+//                    priority="1";
+//                }else{
+//                    priority="0";
+//                }
 
+                // Get the selected date and time from the TextViews
+                String selectedDate = getDate.getText().toString(); // Assuming you update the TextView when selecting a date
+                String selectedTime = getTime.getText().toString(); // Assuming you update the TextView when selecting a time
+
+                TaskModel taskModel = new TaskModel();
+                taskModel.setTitle(title);
+                taskModel.setDescription(description);
+                taskModel.setTime_for_store(selectedTime);
+                taskModel.setDate_for_store(selectedDate);
+                taskModel.setPriority(isHighPriority ? "1" : "0");
+
+
+                MyDbHelper dbHelper = new MyDbHelper(AddTaskActivity.this);
+                dbHelper.addTask(taskModel);
+
+                finish();
+                Log.d("sendin fron btn"," "+title+" "+description+" "+highPriority+" "+selectedDate+" "+selectedTime);
+            }
+        });
 
     }
 
