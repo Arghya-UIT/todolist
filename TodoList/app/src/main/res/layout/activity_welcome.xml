@@ -14,13 +14,13 @@
         app:title="Welcome Home"
         app:titleMarginStart="50dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/displayHighPriorityTasks"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingTop="10dp" />
-    <androidx.recyclerview.widget.RecyclerView
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/displayHighPriorityTasks"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_weight="1"-->
+<!--        android:paddingTop="10dp" />-->
+    <ListView
         android:id="@+id/displayNormalTasks"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

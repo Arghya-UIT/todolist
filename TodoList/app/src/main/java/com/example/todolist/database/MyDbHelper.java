@@ -50,8 +50,8 @@ public class MyDbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ArrayList<TaskModel> fetchContact() {
-        ArrayList<TaskModel> contactList = new ArrayList<>();
+    public ArrayList<TaskModel> fetchTask() {
+        ArrayList<TaskModel> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String select = "SELECT * FROM " + Params.TABLE_NAME;
         Cursor cursor = db.rawQuery(select, null);
@@ -65,11 +65,11 @@ public class MyDbHelper extends SQLiteOpenHelper {
                 taskModel.setTime_for_store(cursor.getString(4));
                 taskModel.setPriority(cursor.getString(5));
 
-                contactList.add(taskModel);
+                taskList.add(taskModel);
             } while (cursor.moveToNext());
         }
         cursor.close();
-        return contactList;
+        return taskList;
     }
 }
 
