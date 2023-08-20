@@ -1,6 +1,7 @@
 package com.example.todolist;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +16,9 @@ import java.util.List;
 public class CustomeAdapter extends ArrayAdapter<TaskModel> {
     private List<TaskModel> taskList;
 
-    public CustomeAdapter(Context context, List<TaskModel> contactList) {
-        super(context, R.layout.custome_adapter_design, contactList);
-        this.taskList = contactList;
+    public CustomeAdapter(Context context, List<TaskModel> taskList) {
+        super(context, R.layout.custome_adapter_design, taskList);
+        this.taskList = taskList;
     }
 
     @Override
@@ -36,10 +37,18 @@ public class CustomeAdapter extends ArrayAdapter<TaskModel> {
         ImageView editBtn = view.findViewById(R.id.editBtn);
         ImageView priorityMarker = view.findViewById(R.id.highPriorityMarker);
 
+
         // Get the current contact from the list
         TaskModel task = taskList.get(position);
 
-        // Set the default image
+        Log.d("priority---marker"," "+task.getPriority());
+
+        titleText.setText(task.getTitle());
+        showTime.setText(task.getTime_for_store());
+        showDate.setText(task.getDate_for_store());
+        if ("1".equals(task.getPriority())) {
+            priorityMarker.setImageResource(R.drawable.img);
+        }
 
 
         return view;
