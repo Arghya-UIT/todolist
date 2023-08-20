@@ -80,7 +80,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
                 MyDbHelper dbHelper = new MyDbHelper(AddTaskActivity.this);
                 dbHelper.addTask(taskModel);
-
+                setResult(RESULT_OK);
                 finish();
                 Log.d("sendin fron btn"," "+title+" "+description+" "+highPriority+" "+selectedDate+" "+selectedTime);
             }

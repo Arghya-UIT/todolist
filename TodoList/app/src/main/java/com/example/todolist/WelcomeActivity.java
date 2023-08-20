@@ -20,6 +20,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private ArrayAdapter<TaskModel> adapter;
     private MyDbHelper dbHelper;
     private final int ADD_TASK_REQUEST_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,19 +45,21 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         });
 
-        fetchContact();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchContact();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ADD_TASK_REQUEST_CODE && resultCode == RESULT_OK) {
-            // Contact was successfully saved in NewContactActivity
-            // You can update the contact list here if needed
-            fetchContact();
             adapter.notifyDataSetChanged();
         }
     }
+
     private void fetchContact() {
         taskList.clear();
         taskList.addAll(dbHelper.fetchTask());
