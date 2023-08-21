@@ -88,7 +88,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
     }
 
-    private void showDatePickerDialog() {
+    protected void showDatePickerDialog() {
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dailouge_get_date, null);
 
@@ -121,7 +121,7 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
 
-    private void showTimePickerDialog() {
+    protected void showTimePickerDialog() {
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dailouge_get_time, null);
 

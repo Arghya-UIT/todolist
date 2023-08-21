@@ -71,5 +71,44 @@ public class MyDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return taskList;
     }
+    public TaskModel fetchTaskById(int taskId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String select = "SELECT * FROM " + Params.TABLE_NAME + " WHERE " + Params.KEY_ID + " = ?";
+        Cursor cursor = db.rawQuery(select, new String[]{String.valueOf(taskId)});
+
+        TaskModel taskModel = null;
+
+        if (cursor.moveToFirst()) {
+            taskModel = new TaskModel();
+            taskModel.setId(cursor.getInt(0));
+            taskModel.setTitle(cursor.getString(1));
+            taskModel.setDescription(cursor.getString(2));
+            taskModel.setDate_for_store(cursor.getString(3));
+            taskModel.setTime_for_store(cursor.getString(4));
+            taskModel.setPriority(cursor.getString(5));
+        }
+
+        cursor.close();
+        return taskModel;
+    }
+    public void updateTask(TaskModel taskModel ,int taskId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(Params.KEY_TITLE, taskModel.getTitle());
+        values.put(Params.KEY_DESCRIPTION, taskModel.getDescription());
+        values.put(Params.KEY_DATE, taskModel.getDate_for_store());
+        values.put(Params.KEY_TIME, taskModel.getTime_for_store());
+        values.put(Params.KEY_PRIORITY, taskModel.getPriority());
+
+        db.update(
+                Params.TABLE_NAME,
+                values,
+                Params.KEY_ID + " = ?",
+                new String[]{String.valueOf(taskId)}
+        );
+
+        db.close();
+    }
 }
 
