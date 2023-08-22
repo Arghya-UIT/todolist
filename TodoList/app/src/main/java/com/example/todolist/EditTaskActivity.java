@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.todolist.database.MyDbHelper;
@@ -13,14 +14,17 @@ import com.example.todolist.database.TaskModel;
 
 public class EditTaskActivity extends AddTaskActivity {
     private MyDbHelper dbHelper;
+    TextView setDate, setTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edittask);
 
-        TextView getDate = findViewById(R.id.getDate);
-        TextView getTime = findViewById(R.id.getTime);
+        LinearLayout getDate = findViewById(R.id.getDate);
+        setDate=findViewById(R.id.setDate);
+        LinearLayout getTime = findViewById(R.id.getTime);
+        setTime = findViewById(R.id.setTime);
         TextView cancelBtn = findViewById(R.id.cancelBtn);
         TextView saveBtn = findViewById(R.id.saveBtn);
         CheckBox highPriority = findViewById(R.id.highPriority);
@@ -36,8 +40,8 @@ public class EditTaskActivity extends AddTaskActivity {
                 Log.d("getting here task id", " " + taskId);
                 TaskModel task = dbHelper.fetchTaskById(taskId);
                 if (task != null) {
-                    getDate.setText(task.getDate_for_store());
-                    getTime.setText(task.getTime_for_store());
+                    setDate.setText(task.getDate_for_store());
+                    setTime.setText(task.getTime_for_store());
                     getDescription.setText(task.getDescription());
                     getTitle.setText(task.getTitle());
                     if ("1".equals(task.getPriority())) {
@@ -50,14 +54,14 @@ public class EditTaskActivity extends AddTaskActivity {
         getDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDatePickerDialog();
+                showDatePickerDialog(setDate);
             }
         });
 
         getTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTimePickerDialog();
+                showTimePickerDialog(setTime);
             }
         });
         saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -68,8 +72,8 @@ public class EditTaskActivity extends AddTaskActivity {
                 boolean isHighPriority = highPriority.isChecked();
 
                 // Get the selected date and time from the TextViews
-                String selectedDate = getDate.getText().toString(); // Assuming you update the TextView when selecting a date
-                String selectedTime = getTime.getText().toString(); // Assuming you update the TextView when selecting a time
+                String selectedDate = setDate.getText().toString(); // Assuming you update the TextView when selecting a date
+                String selectedTime = setTime.getText().toString(); // Assuming you update the TextView when selecting a time
 
                 TaskModel taskModel = new TaskModel();
                 taskModel.setTitle(title);

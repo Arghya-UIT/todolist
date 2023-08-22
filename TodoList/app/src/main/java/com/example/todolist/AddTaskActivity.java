@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -20,19 +21,21 @@ import com.example.todolist.database.TaskModel;
 import java.util.Locale;
 
 public class AddTaskActivity extends AppCompatActivity {
+    TextView setDate, setTime;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addtask);
 
-        TextView getDate = findViewById(R.id.getDate);
-        TextView getTime = findViewById(R.id.getTime);
+        LinearLayout getDate = findViewById(R.id.getDate);
+        setDate = findViewById(R.id.setDate);
+        LinearLayout getTime = findViewById(R.id.getTime);
+        setTime = findViewById(R.id.setTime);
         TextView cancelBtn = findViewById(R.id.cancelBtn);
         TextView saveBtn = findViewById(R.id.saveBtn);
         CheckBox highPriority = findViewById(R.id.highPriority);
         EditText getTitle = findViewById(R.id.getTitle);
         EditText getDescription = findViewById(R.id.getDescription);
-
 
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -44,13 +47,13 @@ public class AddTaskActivity extends AppCompatActivity {
         getDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDatePickerDialog();
+                showDatePickerDialog(setDate);
             }
         });
         getTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTimePickerDialog();
+                showTimePickerDialog(setTime);
             }
         });
         saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -67,8 +70,8 @@ public class AddTaskActivity extends AppCompatActivity {
 //                }
 
                 // Get the selected date and time from the TextViews
-                String selectedDate = getDate.getText().toString(); // Assuming you update the TextView when selecting a date
-                String selectedTime = getTime.getText().toString(); // Assuming you update the TextView when selecting a time
+                String selectedDate = setDate.getText().toString(); // Assuming you update the TextView when selecting a date
+                String selectedTime = setTime.getText().toString(); // Assuming you update the TextView when selecting a time
 
                 TaskModel taskModel = new TaskModel();
                 taskModel.setTitle(title);
@@ -82,13 +85,13 @@ public class AddTaskActivity extends AppCompatActivity {
                 dbHelper.addTask(taskModel);
                 setResult(RESULT_OK);
                 finish();
-                Log.d("sendin fron btn"," "+title+" "+description+" "+highPriority+" "+selectedDate+" "+selectedTime);
+                Log.d("sendin fron btn", " " + title + " " + description + " " + highPriority + " " + selectedDate + " " + selectedTime);
             }
         });
 
     }
 
-    protected void showDatePickerDialog() {
+    protected void showDatePickerDialog(final TextView setDate) {
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dailouge_get_date, null);
 
@@ -106,7 +109,7 @@ public class AddTaskActivity extends AppCompatActivity {
                         // Here you can handle the selected date (year, month, dayOfMonth)
                         String selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
                         // Assuming you have a TextView for displaying the selected date
-                        // textViewSelectedDate.setText(selectedDate);
+                        setDate.setText(selectedDate);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -121,7 +124,7 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
 
-    protected void showTimePickerDialog() {
+    protected void showTimePickerDialog(final TextView setTime) {
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dailouge_get_time, null);
 
@@ -154,6 +157,7 @@ public class AddTaskActivity extends AppCompatActivity {
                 String amPmText = amPm == 1 ? "PM" : "AM";
                 String selectedTime = String.format(Locale.getDefault(), "%02d:%02d %s", hour, minute, amPmText);
                 // Assuming you have a TextView for displaying the selected time
+                setTime.setText(selectedTime);
 
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

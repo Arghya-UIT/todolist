@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import androidx.core.database.sqlite.SQLiteDatabaseKt;
+
 import java.util.ArrayList;
 
 public class MyDbHelper extends SQLiteOpenHelper {
@@ -53,7 +55,8 @@ public class MyDbHelper extends SQLiteOpenHelper {
     public ArrayList<TaskModel> fetchTask() {
         ArrayList<TaskModel> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String select = "SELECT * FROM " + Params.TABLE_NAME;
+        String select = "SELECT * FROM " + Params.TABLE_NAME +
+                " ORDER BY " + Params.KEY_DATE + " ASC, " + Params.KEY_TIME + " ASC";
         Cursor cursor = db.rawQuery(select, null);
         if (cursor.moveToFirst()) {
             do {
@@ -110,5 +113,16 @@ public class MyDbHelper extends SQLiteOpenHelper {
 
         db.close();
     }
+    public void deleteFromDB(int taskId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(
+                Params.TABLE_NAME,
+                Params.KEY_ID + " = ?",
+                new String[]{String.valueOf(taskId)}
+        );
+        db.close();
+        Log.d("deleted from db"," "+taskId);
+    }
+
 }
 

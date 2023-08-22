@@ -2,9 +2,12 @@ package com.example.todolist;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,6 +22,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private ArrayList<TaskModel> taskList;
     private ArrayAdapter<TaskModel> adapter;
     private MyDbHelper dbHelper;
+    private GestureDetector gestureDetector;
     private final int ADD_TASK_REQUEST_CODE = 1;
 
     @Override
@@ -37,6 +41,16 @@ public class WelcomeActivity extends AppCompatActivity {
         contactListView.setAdapter(adapter);
 
         fetchContact();
+
+        gestureDetector = new GestureDetector(this, new SwipeGestureListener(contactListView));
+
+        // Attach gesture detector to ListView
+//        contactListView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return gestureDetector.onTouchEvent(event);
+//            }
+//        });
         addTaskbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,4 +79,29 @@ public class WelcomeActivity extends AppCompatActivity {
         taskList.addAll(dbHelper.fetchTask());
         adapter.notifyDataSetChanged();
     }
+
+    private class SwipeGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private ListView listView;
+
+        SwipeGestureListener(ListView listView) {
+            this.listView = listView;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            // Detect leftward swipe
+            if (e1.getX() - e2.getX() > 50) {
+                int position = listView.pointToPosition((int) e1.getX(), (int) e1.getY());
+                if (position != ListView.INVALID_POSITION) {
+                    TaskModel task = adapter.getItem(position);
+                    taskList.remove(task);
+                    adapter.notifyDataSetChanged();
+                    // Perform archive action (remove task from the list)
+                    Toast.makeText(WelcomeActivity.this, "swap detected", Toast.LENGTH_SHORT).show();
+                }
+            }
+            return super.onFling(e1, e2, velocityX, velocityY);
+        }
+    }
 }
+
