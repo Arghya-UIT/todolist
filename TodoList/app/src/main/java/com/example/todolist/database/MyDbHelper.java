@@ -1,10 +1,14 @@
 package com.example.todolist.database;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.icu.util.Calendar;
 import android.util.Log;
 
 import androidx.core.database.sqlite.SQLiteDatabaseKt;
@@ -49,6 +53,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
 
         db.insert(Params.TABLE_NAME, null, values);
         Log.d("dbarghya", "db created");
+
         db.close();
     }
 
@@ -123,6 +128,28 @@ public class MyDbHelper extends SQLiteOpenHelper {
         db.close();
         Log.d("deleted from db"," "+taskId);
     }
+//    public void scheduleNotifications(Context context) {
+//        // Initialize AlarmManager
+//        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//
+//        // Retrieve the task list with matching dates and times
+//        ArrayList<TaskModel> matchingTasks = fetchMatchingTasks();
+//
+//        for (TaskModel task : matchingTasks) {
+//            // Calculate the alarm time based on task date and time
+//            Calendar alarmCalendar = Calendar.getInstance();
+//            alarmCalendar.setTime(task.getDateTime());
+//
+//            // Create a PendingIntent for the AlarmReceiver
+//            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+//            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, task.getId(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//            // Set the alarm
+//            if (alarmManager != null) {
+//                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
+//            }
+//        }
+//    }
 
 }
 

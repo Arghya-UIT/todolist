@@ -6,83 +6,114 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todolist.database.TaskModel;
 
 import java.util.List;
 
-public class CustomeAdapter extends ArrayAdapter<TaskModel> {
+public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.ViewHolder> {
     private List<TaskModel> taskList;
+    private Context context;
+    private CustomeAdapterListener longClickListener;
 
-    public CustomeAdapter(Context context, List<TaskModel> taskList) {
-        super(context, R.layout.custome_adapter_design, taskList);
+    public interface CustomeAdapterListener {
+        void onItemLongClick(TaskModel task);
+    }
+
+    public CustomeAdapter(Context context, List<TaskModel> taskList, CustomeAdapterListener listener) {
+        this.context = context;
         this.taskList = taskList;
+        longClickListener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custome_adapter_design, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+
+        // Attach the long click listener to the itemView
+        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                int position = viewHolder.getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    TaskModel alarm = taskList.get(position);
+                    longClickListener.onItemLongClick(alarm);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        return viewHolder;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View view = convertView;
-
-        if (view == null) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            view = inflater.inflate(R.layout.custome_adapter_design, parent, false);
-        }
-
-        ImageView doneMarker = view.findViewById(R.id.doneMarker);
-        TextView titleText = view.findViewById(R.id.titleText);
-        TextView showTime = view.findViewById(R.id.showTime);
-        TextView showDate = view.findViewById(R.id.showDate);
-        ImageView editBtn = view.findViewById(R.id.editBtn);
-        ImageView priorityMarker = view.findViewById(R.id.highPriorityMarker);
-        LinearLayout showDetails=view.findViewById(R.id.showDetails);
-
-
-        // Get the current contact from the list
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TaskModel task = taskList.get(position);
 
-        Log.d("priority---marker", " " + task.getPriority());
+        holder.titleText.setText(task.getTitle());
+        holder.showTime.setText(task.getTime_for_store());
+        holder.showDate.setText(task.getDate_for_store());
 
-        titleText.setText(task.getTitle());
-        showTime.setText(task.getTime_for_store());
-        showDate.setText(task.getDate_for_store());
         if ("1".equals(task.getPriority())) {
-            priorityMarker.setImageResource(R.drawable.img);
+            holder.priorityMarker.setImageResource(R.drawable.img);
         }
-        editBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // Open EditTaskActivity with the task ID
-                        Intent editIntent = new Intent(getContext(), EditTaskActivity.class);
-                        editIntent.putExtra("task_id", task.getId()); // Pass the task ID
-                        getContext().startActivity(editIntent);
-                    }
-                });
-                Toast.makeText(getContext(), "Image clicked at position: " + position, Toast.LENGTH_SHORT).show();
-                Log.d("this---db id"," "+task.getId());
-            }
-        });
-        showDetails.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), ViewTaskActivity.class);
-                intent.putExtra("task_id", task.getId()); // Pass the task ID as extra data
-                getContext().startActivity(intent);
 
-                Toast.makeText(getContext(), "layout clicked at position: " + position, Toast.LENGTH_SHORT).show();
-            }
+        holder.editBtn.setOnClickListener(v -> {
+            Intent editIntent = new Intent(context, EditTaskActivity.class);
+            editIntent.putExtra("task_id", task.getId());
+            context.startActivity(editIntent);
+            Toast.makeText(context, "Edit clicked at position: " + position, Toast.LENGTH_SHORT).show();
+            Log.d("this---db id", " " + task.getId());
         });
 
+        holder.showDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ViewTaskActivity.class);
+            intent.putExtra("task_id", task.getId());
+            context.startActivity(intent);
+            Toast.makeText(context, "Layout clicked at position: " + position, Toast.LENGTH_SHORT).show();
+        });
+    }
 
+    @Override
+    public int getItemCount() {
+        return taskList.size();
+    }
 
-        return view;
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView doneMarker;
+        TextView titleText, showTime, showDate;
+        ImageView editBtn, priorityMarker;
+        LinearLayout showDetails;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            doneMarker = itemView.findViewById(R.id.doneMarker);
+            titleText = itemView.findViewById(R.id.titleText);
+            showTime = itemView.findViewById(R.id.showTime);
+            showDate = itemView.findViewById(R.id.showDate);
+            editBtn = itemView.findViewById(R.id.editBtn);
+            priorityMarker = itemView.findViewById(R.id.highPriorityMarker);
+            showDetails = itemView.findViewById(R.id.showDetails);
+
+            itemView.setOnLongClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    TaskModel task = taskList.get(position);
+                    longClickListener.onItemLongClick(task);
+                    return true;
+                }
+                return false;
+            });
+        }
     }
 }

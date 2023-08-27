@@ -2,14 +2,14 @@ package com.example.todolist;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todolist.database.MyDbHelper;
 import com.example.todolist.database.TaskModel;
@@ -17,12 +17,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-public class WelcomeActivity extends AppCompatActivity {
+public class WelcomeActivity extends AppCompatActivity implements CustomeAdapter.CustomeAdapterListener {
 
     private ArrayList<TaskModel> taskList;
-    private ArrayAdapter<TaskModel> adapter;
+    private CustomeAdapter adapter;
     private MyDbHelper dbHelper;
-    private GestureDetector gestureDetector;
+    private ActionMode actionMode;
+    private TaskModel selectedTask;
     private final int ADD_TASK_REQUEST_CODE = 1;
 
     @Override
@@ -34,23 +35,16 @@ public class WelcomeActivity extends AppCompatActivity {
 
         dbHelper = new MyDbHelper(this);
         taskList = new ArrayList<>();
-        adapter = new CustomeAdapter(this, taskList);
+        adapter = new CustomeAdapter(this, taskList, this);
 
 
-        ListView contactListView = findViewById(R.id.displayNormalTasks);
+        RecyclerView contactListView = findViewById(R.id.displayNormalTasks);
+        contactListView.setLayoutManager(new LinearLayoutManager(this));
         contactListView.setAdapter(adapter);
 
         fetchContact();
 
-        gestureDetector = new GestureDetector(this, new SwipeGestureListener(contactListView));
 
-        // Attach gesture detector to ListView
-//        contactListView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                return gestureDetector.onTouchEvent(event);
-//            }
-//        });
         addTaskbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,28 +74,54 @@ public class WelcomeActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-    private class SwipeGestureListener extends GestureDetector.SimpleOnGestureListener {
-        private ListView listView;
+    @Override
+    public void onItemLongClick(TaskModel task) {
+        if (actionMode != null) {
+            return;
+        }
 
-        SwipeGestureListener(ListView listView) {
-            this.listView = listView;
+        selectedTask = task;
+
+        // Start the contextual ActionMode
+        actionMode = startSupportActionMode(actionModeCallback);
+
+    }
+
+    protected ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            getMenuInflater().inflate(R.menu.context_menu, menu); // Your context menu XML
+            return true;
         }
 
         @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            // Detect leftward swipe
-            if (e1.getX() - e2.getX() > 50) {
-                int position = listView.pointToPosition((int) e1.getX(), (int) e1.getY());
-                if (position != ListView.INVALID_POSITION) {
-                    TaskModel task = adapter.getItem(position);
-                    taskList.remove(task);
-                    adapter.notifyDataSetChanged();
-                    // Perform archive action (remove task from the list)
-                    Toast.makeText(WelcomeActivity.this, "swap detected", Toast.LENGTH_SHORT).show();
-                }
-            }
-            return super.onFling(e1, e2, velocityX, velocityY);
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
         }
-    }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (item.getItemId() == R.id.menu_delete) {
+                // Handle delete action here
+                if (selectedTask != null) {
+                    dbHelper.deleteFromDB(selectedTask.getId()); // Adjust this method based on your dbHelper
+                    taskList.remove(selectedTask);
+                    adapter.notifyDataSetChanged();
+                    selectedTask = null;
+                }
+
+                mode.finish(); // Finish the ActionMode
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            actionMode = null;
+        }
+    };
+
+
 }
 
