@@ -1,19 +1,16 @@
 package com.example.todolist.database;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.icu.util.Calendar;
 import android.util.Log;
 
-import androidx.core.database.sqlite.SQLiteDatabaseKt;
-
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class MyDbHelper extends SQLiteOpenHelper {
 
@@ -29,7 +26,8 @@ public class MyDbHelper extends SQLiteOpenHelper {
                 + Params.KEY_DESCRIPTION + " TEXT,"
                 + Params.KEY_DATE + " TEXT,"
                 + Params.KEY_TIME + " TEXT,"
-                + Params.KEY_PRIORITY + " TEXT"
+                + Params.KEY_PRIORITY + " TEXT,"
+                + Params.KEY_DATE_TIME + " DATETIME"
                 + ")";
 
         Log.d("db---arghya", "query " + create);
@@ -50,18 +48,24 @@ public class MyDbHelper extends SQLiteOpenHelper {
         values.put(Params.KEY_DATE, taskModel.getDate_for_store());
         values.put(Params.KEY_TIME, taskModel.getTime_for_store());
         values.put(Params.KEY_PRIORITY, taskModel.getPriority());
+        values.put(String.valueOf(Params.KEY_DATE_TIME), getDateTimeString(taskModel.getDate_time_for_store()));
 
         db.insert(Params.TABLE_NAME, null, values);
-        Log.d("dbarghya", "db created");
+        Log.d("dbarghya", "db created ");
 
         db.close();
+    }
+
+    private String getDateTimeString(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        return dateFormat.format(date);
     }
 
     public ArrayList<TaskModel> fetchTask() {
         ArrayList<TaskModel> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String select = "SELECT * FROM " + Params.TABLE_NAME +
-                " ORDER BY " + Params.KEY_DATE + " ASC, " + Params.KEY_TIME + " ASC";
+                " ORDER BY " + Params.KEY_DATE_TIME + " ASC";
         Cursor cursor = db.rawQuery(select, null);
         if (cursor.moveToFirst()) {
             do {
@@ -79,6 +83,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return taskList;
     }
+
     public TaskModel fetchTaskById(int taskId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String select = "SELECT * FROM " + Params.TABLE_NAME + " WHERE " + Params.KEY_ID + " = ?";
@@ -99,7 +104,8 @@ public class MyDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return taskModel;
     }
-    public void updateTask(TaskModel taskModel ,int taskId) {
+
+    public void updateTask(TaskModel taskModel, int taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -118,6 +124,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
 
         db.close();
     }
+
     public void deleteFromDB(int taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(
@@ -126,30 +133,8 @@ public class MyDbHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(taskId)}
         );
         db.close();
-        Log.d("deleted from db"," "+taskId);
+        Log.d("deleted from db", " " + taskId);
     }
-//    public void scheduleNotifications(Context context) {
-//        // Initialize AlarmManager
-//        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-//
-//        // Retrieve the task list with matching dates and times
-//        ArrayList<TaskModel> matchingTasks = fetchMatchingTasks();
-//
-//        for (TaskModel task : matchingTasks) {
-//            // Calculate the alarm time based on task date and time
-//            Calendar alarmCalendar = Calendar.getInstance();
-//            alarmCalendar.setTime(task.getDateTime());
-//
-//            // Create a PendingIntent for the AlarmReceiver
-//            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-//            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, task.getId(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//            // Set the alarm
-//            if (alarmManager != null) {
-//                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
-//            }
-//        }
-//    }
 
 }
 

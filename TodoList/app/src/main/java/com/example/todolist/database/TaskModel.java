@@ -1,5 +1,7 @@
 package com.example.todolist.database;
 
+import java.util.Date;
+
 public class TaskModel {
     private int id;
     private String title;
@@ -7,6 +9,16 @@ public class TaskModel {
     private String time_for_store;
     private String date_for_store;
     private String priority;
+
+    public Date getDate_time_for_store() {
+        return date_time_for_store;
+    }
+
+    public void setDate_time_for_store(Date date_time_for_store) {
+        this.date_time_for_store = date_time_for_store;
+    }
+
+    private Date date_time_for_store;
 
     public String getPriority() {
         return priority;

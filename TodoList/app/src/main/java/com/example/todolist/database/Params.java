@@ -1,5 +1,7 @@
 package com.example.todolist.database;
 
+import java.util.Date;
+
 public class Params {
     public static final int DB_VIRSION =1;
     public static final String DB_NAME="tasks";
@@ -10,5 +12,6 @@ public class Params {
     public static final String KEY_DATE="date";
     public static final String KEY_TIME="time";
     public static final String KEY_PRIORITY="priority";
+    public static final String KEY_DATE_TIME = "datetime";
 
 }

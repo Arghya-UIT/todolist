@@ -1,6 +1,10 @@
 package com.example.todolist;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +22,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.todolist.database.MyDbHelper;
 import com.example.todolist.database.TaskModel;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 public class AddTaskActivity extends AppCompatActivity {
@@ -62,14 +69,6 @@ public class AddTaskActivity extends AppCompatActivity {
                 String title = getTitle.getText().toString();
                 String description = getDescription.getText().toString();
                 boolean isHighPriority = highPriority.isChecked();
-//                String priority ;
-//                if(isHighPriority==true){
-//                    priority="1";
-//                }else{
-//                    priority="0";
-//                }
-
-                // Get the selected date and time from the TextViews
                 String selectedDate = setDate.getText().toString(); // Assuming you update the TextView when selecting a date
                 String selectedTime = setTime.getText().toString(); // Assuming you update the TextView when selecting a time
 
@@ -80,15 +79,59 @@ public class AddTaskActivity extends AppCompatActivity {
                 taskModel.setDate_for_store(selectedDate);
                 taskModel.setPriority(isHighPriority ? "1" : "0");
 
+// Parse date and time separately
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm aa", Locale.US);
+                try {
+                    Date date = dateFormat.parse(selectedDate);
+                    Date time = timeFormat.parse(selectedTime);
+
+                    // Combine date and time
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date);
+                    Calendar timeCalendar = Calendar.getInstance();
+                    timeCalendar.setTime(time);
+                    calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+                    calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+
+                    taskModel.setDate_time_for_store(calendar.getTime());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
 
                 MyDbHelper dbHelper = new MyDbHelper(AddTaskActivity.this);
+
+                Intent intent = new Intent(AddTaskActivity.this, AlarmReceiver.class);
+                intent.putExtra("Message", taskModel.getTitle()); // Use task title as the message
+                intent.putExtra("RemindDate", taskModel.getDate_for_store() + " " + taskModel.getTime_for_store()); // Combine date and time
+                intent.putExtra("id", taskModel.getId()); // Replace this with the actual ID
+
+                PendingIntent intent1 = PendingIntent.getBroadcast(AddTaskActivity.this, taskModel.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                long alarmTimeMillis = System.currentTimeMillis() + 60000; // 10 seconds from now
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, intent1);
+
                 dbHelper.addTask(taskModel);
                 setResult(RESULT_OK);
                 finish();
                 Log.d("sendin fron btn", " " + title + " " + description + " " + highPriority + " " + selectedDate + " " + selectedTime);
+
             }
         });
 
+    }
+
+    private long calculateDueDateTime(String date, String time) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        try {
+            Date dueDateTime = sdf.parse(date + " " + time);
+            if (dueDateTime != null) {
+                return dueDateTime.getTime();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     protected void showDatePickerDialog(final TextView setDate) {
