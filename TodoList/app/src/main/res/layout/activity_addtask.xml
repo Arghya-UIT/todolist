@@ -39,11 +39,14 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toRightOf="@id/getDate"
                 app:layout_constraintRight_toLeftOf="@id/highPriority"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginBottom="4dp"/>
+
             <TextView
                 android:id="@+id/setDate"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"/>
 
 
         </LinearLayout>
@@ -62,11 +65,13 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toRightOf="@id/getDate"
                 app:layout_constraintRight_toLeftOf="@id/highPriority"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginBottom="4dp"/>
             <TextView
                 android:id="@+id/setTime"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"/>
 
 
         </LinearLayout>

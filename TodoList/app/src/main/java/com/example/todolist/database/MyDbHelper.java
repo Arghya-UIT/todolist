@@ -78,7 +78,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
                 taskModel.setDate_for_store(cursor.getString(3));
                 taskModel.setTime_for_store(cursor.getString(4));
                 taskModel.setPriority(cursor.getString(5));
-                taskModel.setStatus(cursor.getString(6));
+                taskModel.setStatus(cursor.getString(7));
 
 
                 taskList.add(taskModel);
@@ -141,24 +141,35 @@ public class MyDbHelper extends SQLiteOpenHelper {
         Log.d("deleted from db", " " + taskId);
     }
 
-    public boolean updateTaskStatus(int taskId, String newStatus) {
+    public void updateTaskStatus(int taskId, String newStatus) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(Params.KEY_STATUS, newStatus);
 
-        int rowsAffected = db.update(
-                Params.TABLE_NAME,
-                values,
-                Params.KEY_ID + " = ?",
-                new String[]{String.valueOf(taskId)}
-        );
+        try {
+            int rowsAffected = db.update(
+                    Params.TABLE_NAME,
+                    values,
+                    Params.KEY_ID + " = ?",
+                    new String[]{String.valueOf(taskId)}
+            );
 
-        db.close();
-
-        // Check if the update was successful
-        return rowsAffected > 0;
+            // Check if the update was successful
+            if (rowsAffected > 0) {
+                // Update successful
+                Log.d("updated-successful",""+taskId+" "+newStatus);
+            } else {
+                // No rows were affected; the task with the given ID might not exist
+                // You can log this information or handle it accordingly
+                Log.d("not-updated",""+taskId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle any exceptions here, such as SQLiteException
+        } finally {
+            db.close();
+        }
     }
-
 
 }
 

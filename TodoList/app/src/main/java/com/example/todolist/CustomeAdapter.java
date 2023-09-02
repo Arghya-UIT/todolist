@@ -62,8 +62,6 @@ public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TaskModel task = taskList.get(position);
 
-
-
         holder.titleText.setText(task.getTitle());
         holder.showTime.setText(task.getTime_for_store());
         holder.showDate.setText(task.getDate_for_store());
@@ -71,21 +69,21 @@ public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.ViewHold
         if ("1".equals(task.getPriority())) {
             holder.priorityMarker.setImageResource(R.drawable.img);
         }
-//        holder.statusMarker.setOnClickListener(v -> {
-//            MyDbHelper dbHelper = new MyDbHelper(context);
-//            boolean updated = dbHelper.updateTaskStatus(task.getId(), "1");
-//
-//            if (updated) {
-//                holder.statusMarker.setImageResource(R.drawable.green_tick);
-//            } else {
-//                Toast.makeText(context, "Failed to update status", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
-
         if ("1".equals(task.getStatus())) {
             holder.statusMarker.setImageResource(R.drawable.green_tick);
         }
+        holder.statusMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Handle ImageView click event
+                // Update the database value associated with this item
+                MyDbHelper db=new MyDbHelper(context);
+                db.updateTaskStatus(task.getId(), "1");
+                // Set a new image in the ImageView
+                holder.statusMarker.setImageResource(R.drawable.green_tick);
+                Log.d("updating-for id ",""+task.getId());
+            }
+        });
 
         holder.editBtn.setOnClickListener(v -> {
             Intent editIntent = new Intent(context, EditTaskActivity.class);

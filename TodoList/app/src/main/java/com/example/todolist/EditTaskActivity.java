@@ -81,6 +81,7 @@ public class EditTaskActivity extends AddTaskActivity {
                 taskModel.setTime_for_store(selectedTime);
                 taskModel.setDate_for_store(selectedDate);
                 taskModel.setPriority(isHighPriority ? "1" : "0");
+                taskModel.setStatus("0");
 
 
                 MyDbHelper dbHelper = new MyDbHelper(EditTaskActivity.this);

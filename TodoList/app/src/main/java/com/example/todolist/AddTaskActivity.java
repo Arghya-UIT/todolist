@@ -79,8 +79,8 @@ public class AddTaskActivity extends AppCompatActivity {
                 taskModel.setTime_for_store(selectedTime);
                 taskModel.setDate_for_store(selectedDate);
                 taskModel.setPriority(isHighPriority ? "1" : "0");
+                taskModel.setStatus("0");
 
-// Parse date and time separately
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                 SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm aa", Locale.US);
                 try {
@@ -113,8 +113,6 @@ public class AddTaskActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         if (!alarmManager.canScheduleExactAlarms()) {
-                            // Handle the case where you cannot schedule exact alarms, perhaps by using a less precise scheduling method
-                            // or informing the user.
                             Log.e("Alarm Scheduling", "Cannot schedule exact alarms.");
                             return;
                         }
@@ -140,18 +138,6 @@ public class AddTaskActivity extends AppCompatActivity {
 
     }
 
-//    private long calculateDueDateTime(String date, String time) {
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-//        try {
-//            Date dueDateTime = sdf.parse(date + " " + time);
-//            if (dueDateTime != null) {
-//                return dueDateTime.getTime();
-//            }
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        return 0;
-//    }
 
     protected void showDatePickerDialog(final TextView setDate) {
         LayoutInflater inflater = LayoutInflater.from(this);
