@@ -1,6 +1,5 @@
 package com.example.todolist;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,7 +7,8 @@ import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
+import android.graphics.Color;
+import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 
@@ -19,9 +19,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onReceive(Context context, Intent intent) {
-        Uri alarmsound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        Uri alarmsound = Uri.parse("android.resource://" + context.getApplicationContext().getPackageName() + "/" + R.raw.todo_sound);
 
-        Intent intent1 = new Intent(context, AddTaskActivity.class);
+        Intent intent1 = new Intent(context, WelcomeActivity.class);
         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
@@ -30,24 +30,36 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         PendingIntent intent2 = taskStackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, "default_notification_channel_id")
+                .setSmallIcon(R.drawable.noti_icon)
+                .setContentTitle(intent.getStringExtra("title"))
+                .setContentText(intent.getStringExtra("description"))
+                .setSound(alarmsound)
+                .setContentIntent(intent2);
 
-        NotificationChannel channel = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            channel = new NotificationChannel("my_channel_01", "hello", NotificationManager.IMPORTANCE_HIGH);
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (mNotificationManager == null) {
+            return; // Handle error gracefully
         }
 
-        Notification notification = builder.setContentTitle("Reminder")
-                .setContentText(intent.getStringExtra("Message")).setAutoCancel(true)
-                .setSound(alarmsound).setSmallIcon(R.mipmap.ic_launcher_round)
-                .setContentIntent(intent2)
-                .setChannelId("my_channel_01")
-                .build();
-
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(channel);
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .build();
+
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel notificationChannel = new NotificationChannel("my_channel_01", "My Channel", importance);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            notificationChannel.setSound(alarmsound, audioAttributes);
+
+            mBuilder.setChannelId("my_channel_01");
+            mNotificationManager.createNotificationChannel(notificationChannel);
         }
-        notificationManager.notify(1, notification);
+
+        mNotificationManager.notify((int) System.currentTimeMillis(), mBuilder.build());
     }
 }

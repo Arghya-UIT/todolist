@@ -9,6 +9,15 @@ public class TaskModel {
     private String time_for_store;
     private String date_for_store;
     private String priority;
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public Date getDate_time_for_store() {
         return date_time_for_store;

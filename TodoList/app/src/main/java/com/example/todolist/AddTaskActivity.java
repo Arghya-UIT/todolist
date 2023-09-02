@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.icu.util.Calendar;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -102,37 +103,55 @@ public class AddTaskActivity extends AppCompatActivity {
                 MyDbHelper dbHelper = new MyDbHelper(AddTaskActivity.this);
 
                 Intent intent = new Intent(AddTaskActivity.this, AlarmReceiver.class);
-                intent.putExtra("Message", taskModel.getTitle()); // Use task title as the message
+                intent.putExtra("title", taskModel.getTitle()); // Use task title as the message
+                intent.putExtra("description",taskModel.getDescription());
                 intent.putExtra("RemindDate", taskModel.getDate_for_store() + " " + taskModel.getTime_for_store()); // Combine date and time
                 intent.putExtra("id", taskModel.getId()); // Replace this with the actual ID
 
                 PendingIntent intent1 = PendingIntent.getBroadcast(AddTaskActivity.this, taskModel.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        if (!alarmManager.canScheduleExactAlarms()) {
+                            // Handle the case where you cannot schedule exact alarms, perhaps by using a less precise scheduling method
+                            // or informing the user.
+                            Log.e("Alarm Scheduling", "Cannot schedule exact alarms.");
+                            return;
+                        }
+                    }
+                }
                 long alarmTimeMillis = System.currentTimeMillis() + 60000; // 10 seconds from now
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, intent1);
+                try {
+                    // Set the exact alarm
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, intent1);
 
-                dbHelper.addTask(taskModel);
-                setResult(RESULT_OK);
-                finish();
-                Log.d("sendin fron btn", " " + title + " " + description + " " + highPriority + " " + selectedDate + " " + selectedTime);
-
+                    // Continue with other tasks (e.g., adding the task to the database)
+                    dbHelper.addTask(taskModel);
+                    setResult(RESULT_OK);
+                    finish();
+                    Log.d("Sending from btn", " " + title + " " + description + " " + highPriority + " " + selectedDate + " " + selectedTime);
+                } catch (SecurityException e) {
+                    // Handle the SecurityException, which may occur if your app lacks permission to set the exact alarm.
+                    Log.e("Alarm Scheduling", "SecurityException: " + e.getMessage());
+                    // You can inform the user or take appropriate action here.
+                }
             }
         });
 
     }
 
-    private long calculateDueDateTime(String date, String time) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        try {
-            Date dueDateTime = sdf.parse(date + " " + time);
-            if (dueDateTime != null) {
-                return dueDateTime.getTime();
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
+//    private long calculateDueDateTime(String date, String time) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+//        try {
+//            Date dueDateTime = sdf.parse(date + " " + time);
+//            if (dueDateTime != null) {
+//                return dueDateTime.getTime();
+//            }
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        return 0;
+//    }
 
     protected void showDatePickerDialog(final TextView setDate) {
         LayoutInflater inflater = LayoutInflater.from(this);

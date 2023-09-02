@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.todolist.database.MyDbHelper;
 import com.example.todolist.database.TaskModel;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.ViewHold
     private List<TaskModel> taskList;
     private Context context;
     private CustomeAdapterListener longClickListener;
+
 
     public interface CustomeAdapterListener {
         void onItemLongClick(TaskModel task);
@@ -60,12 +62,29 @@ public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TaskModel task = taskList.get(position);
 
+
+
         holder.titleText.setText(task.getTitle());
         holder.showTime.setText(task.getTime_for_store());
         holder.showDate.setText(task.getDate_for_store());
 
         if ("1".equals(task.getPriority())) {
             holder.priorityMarker.setImageResource(R.drawable.img);
+        }
+//        holder.statusMarker.setOnClickListener(v -> {
+//            MyDbHelper dbHelper = new MyDbHelper(context);
+//            boolean updated = dbHelper.updateTaskStatus(task.getId(), "1");
+//
+//            if (updated) {
+//                holder.statusMarker.setImageResource(R.drawable.green_tick);
+//            } else {
+//                Toast.makeText(context, "Failed to update status", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+
+        if ("1".equals(task.getStatus())) {
+            holder.statusMarker.setImageResource(R.drawable.green_tick);
         }
 
         holder.editBtn.setOnClickListener(v -> {
@@ -90,14 +109,14 @@ public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.ViewHold
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView doneMarker;
+        ImageView statusMarker;
         TextView titleText, showTime, showDate;
         ImageView editBtn, priorityMarker;
         LinearLayout showDetails;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            doneMarker = itemView.findViewById(R.id.doneMarker);
+            statusMarker = itemView.findViewById(R.id.statusMarker);
             titleText = itemView.findViewById(R.id.titleText);
             showTime = itemView.findViewById(R.id.showTime);
             showDate = itemView.findViewById(R.id.showDate);

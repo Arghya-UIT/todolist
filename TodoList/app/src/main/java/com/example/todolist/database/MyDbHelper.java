@@ -27,7 +27,8 @@ public class MyDbHelper extends SQLiteOpenHelper {
                 + Params.KEY_DATE + " TEXT,"
                 + Params.KEY_TIME + " TEXT,"
                 + Params.KEY_PRIORITY + " TEXT,"
-                + Params.KEY_DATE_TIME + " DATETIME"
+                + Params.KEY_DATE_TIME + " DATETIME,"
+                + Params.KEY_STATUS + " TEXT"
                 + ")";
 
         Log.d("db---arghya", "query " + create);
@@ -49,6 +50,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
         values.put(Params.KEY_TIME, taskModel.getTime_for_store());
         values.put(Params.KEY_PRIORITY, taskModel.getPriority());
         values.put(String.valueOf(Params.KEY_DATE_TIME), getDateTimeString(taskModel.getDate_time_for_store()));
+        values.put(Params.KEY_STATUS, taskModel.getStatus());
 
         db.insert(Params.TABLE_NAME, null, values);
         Log.d("dbarghya", "db created ");
@@ -76,6 +78,8 @@ public class MyDbHelper extends SQLiteOpenHelper {
                 taskModel.setDate_for_store(cursor.getString(3));
                 taskModel.setTime_for_store(cursor.getString(4));
                 taskModel.setPriority(cursor.getString(5));
+                taskModel.setStatus(cursor.getString(6));
+
 
                 taskList.add(taskModel);
             } while (cursor.moveToNext());
@@ -99,6 +103,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
             taskModel.setDate_for_store(cursor.getString(3));
             taskModel.setTime_for_store(cursor.getString(4));
             taskModel.setPriority(cursor.getString(5));
+//            taskModel.setStatus(cursor.getString(7));
         }
 
         cursor.close();
@@ -135,6 +140,25 @@ public class MyDbHelper extends SQLiteOpenHelper {
         db.close();
         Log.d("deleted from db", " " + taskId);
     }
+
+    public boolean updateTaskStatus(int taskId, String newStatus) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Params.KEY_STATUS, newStatus);
+
+        int rowsAffected = db.update(
+                Params.TABLE_NAME,
+                values,
+                Params.KEY_ID + " = ?",
+                new String[]{String.valueOf(taskId)}
+        );
+
+        db.close();
+
+        // Check if the update was successful
+        return rowsAffected > 0;
+    }
+
 
 }
 
